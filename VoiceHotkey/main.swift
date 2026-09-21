@@ -10,7 +10,9 @@ setbuf(stderr, nil)
 
 let soxPath = "/opt/homebrew/bin/sox"
 let whisperPath = "/opt/homebrew/opt/whisper-cpp/bin/whisper-cli"
-let modelPath = "/opt/homebrew/share/whisper-cpp/models/ggml-small.en.bin"
+// Model lives OUTSIDE brew's tree — `brew upgrade whisper-cpp` WIPES /opt/homebrew/share/whisper-cpp/models
+// (it did, 2026-09-21, taking the model with it). sox/whisper-cli stay on brew's stable `opt` symlinks.
+let modelPath = NSHomeDirectory() + "/Library/Application Support/VoiceHotkey/models/ggml-small.en.bin"
 let logFile = "/tmp/voicehotkey.log"
 
 var recordingProcess: Process?
