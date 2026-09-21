@@ -12,7 +12,14 @@ BUILD_DIR="$PROJECT_DIR/build"
 APP_NAME="VoiceHotkey"
 APP_BUNDLE="$BUILD_DIR/$APP_NAME.app"
 INSTALL_DIR="$HOME/Applications"
-SIGNING_ID="889977587632369F6808CD6C156F21E531B9A84C"
+# Resolve the Apple Development signing identity at build time — no hardcoded email or cert hash.
+# TCC grants are anchored to Team ID + bundle id, so any Apple Development cert on this machine
+# (same Team) preserves Accessibility + Input Monitoring across rebuilds; resolving dynamically
+# also survives cert renewal (a hardcoded SHA-1 goes stale and breaks the build).
+# `|| true` inside the substitution: under `set -e -o pipefail` a failed pipe would kill the
+# script before the guard below can print a clear error.
+SIGNING_ID="$(security find-identity -v -p codesigning | awk '/Apple Development/{print $2; exit}' || true)"
+[ -n "$SIGNING_ID" ] || { echo "ERROR: no Apple Development signing identity found (security find-identity)"; exit 1; }
 
 echo "=== VoiceHotkey Build ==="
 
